@@ -1,4 +1,4 @@
-name: Build TrayApp
+name: Build TrayApp and TrayService
 
 on:
   push:
@@ -14,15 +14,25 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
       - name: Configure CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build with MSBuild via CMake
+      - name: Build
         run: cmake --build build --config Release
 
-      - name: Upload TrayApp.exe artifact
+      - name: Upload TrayApp.exe
         uses: actions/upload-artifact@v4
         with:
           name: TrayApp
           path: build/Release/TrayApp.exe
+          if-no-files-found: error
+
+      - name: Upload TrayService.exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: TrayService
+          path: build/Release/TrayService.exe
           if-no-files-found: error
