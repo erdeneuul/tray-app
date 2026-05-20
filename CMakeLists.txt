@@ -33,7 +33,7 @@ add_custom_command(
     OUTPUT  "${RPC_HEADER}" "${RPC_CLIENT}" "${RPC_SERVER}"
     COMMAND "${MIDL_EXECUTABLE}"
             /nologo /Oicf /W1 /char signed
-            /env    win64
+            /env    x64
             /out    "${MIDL_OUTDIR}"
             /header TrayService_h.h
             /cstub  TrayService_c.c
