@@ -6,6 +6,7 @@
 #include <userenv.h>
 #include <tlhelp32.h>
 #include <strsafe.h>
+#include <cstdlib>
 #include <vector>
 #include <string>
 
@@ -16,6 +17,12 @@
 #pragma comment(lib, "userenv.lib")
 #pragma comment(lib, "rpcrt4.lib")
 #pragma comment(lib, "advapi32.lib")
+
+// Required by the RPC runtime / MIDL-generated stubs
+extern "C" {
+    void* __RPC_USER MIDL_user_allocate(size_t len) { return malloc(len); }
+    void  __RPC_USER MIDL_user_free(void* ptr)      { free(ptr); }
+}
 
 #define SERVICE_NAME    L"TrayService"
 #define TRAY_APP_EXE    L"TrayApp.exe"

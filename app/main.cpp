@@ -5,6 +5,7 @@
 #include <shellapi.h>
 #include <strsafe.h>
 #include <tlhelp32.h>
+#include <cstdlib>
 
 // Generated RPC header
 #include "TrayService_h.h"
@@ -14,6 +15,12 @@
 #pragma comment(lib, "gdi32.lib")
 #pragma comment(lib, "rpcrt4.lib")
 #pragma comment(lib, "advapi32.lib")
+
+// Required by the RPC runtime / MIDL-generated stubs
+extern "C" {
+    void* __RPC_USER MIDL_user_allocate(size_t len) { return malloc(len); }
+    void  __RPC_USER MIDL_user_free(void* ptr)      { free(ptr); }
+}
 
 #define WM_TRAYICON     (WM_USER + 1)
 #define IDM_OPEN        1001
