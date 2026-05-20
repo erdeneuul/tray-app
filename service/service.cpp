@@ -199,9 +199,9 @@ static DWORD WINAPI RpcServerThread(LPVOID)
 }
 
 // ---------------------------------------------------------------------------
-// RPC interface implementation — called by generated server stub
+// RPC interface implementation — called by generated server stub (C linkage)
 // ---------------------------------------------------------------------------
-void StopService(handle_t /*hBinding*/)
+extern "C" void StopService(handle_t /*hBinding*/)
 {
     SetEvent(g_rpcStopEvent);
 }
