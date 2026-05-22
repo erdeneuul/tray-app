@@ -58,12 +58,14 @@ static bool IsParentTrayService()
     if (!parentId) return false;
 
     HANDLE hParent = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, parentId);
-    if (!hParent) return false;
+    if (!hParent) return false;  // parent already gone — PID not yet reused
 
     wchar_t image[MAX_PATH] = {};
     DWORD   len = MAX_PATH;
-    QueryFullProcessImageNameW(hParent, 0, image, &len);
+    BOOL    ok  = QueryFullProcessImageNameW(hParent, 0, image, &len);
     CloseHandle(hParent);
+
+    if (!ok) return false;  // PID reused by a process we can't query — not our service
 
     const wchar_t* name = wcsrchr(image, L'\\');
     name = name ? name + 1 : image;
@@ -121,9 +123,10 @@ static bool HandleServiceStartup()
 }
 
 // ---------------------------------------------------------------------------
-// Call StopService() on the service via RPC/ALPC
+// Call StopService() on the service via RPC/ALPC.
+// Returns true on success, false if the RPC call could not be completed.
 // ---------------------------------------------------------------------------
-static void CallRpcStopService()
+static bool CallRpcStopService()
 {
     RPC_WSTR szBinding = NULL;
     handle_t hBinding  = NULL;
@@ -135,17 +138,19 @@ static void CallRpcStopService()
         reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(kRpcEndpoint)),
         NULL,
         &szBinding);
-    if (st != RPC_S_OK) return;
+    if (st != RPC_S_OK) return false;
 
     st = RpcBindingFromStringBindingW(szBinding, &hBinding);
     RpcStringFreeW(&szBinding);
-    if (st != RPC_S_OK) return;
+    if (st != RPC_S_OK) return false;
 
+    bool ok = true;
     RpcTryExcept { StopService(hBinding); }
-    RpcExcept(1) { }
+    RpcExcept(1) { ok = false; }
     RpcEndExcept
 
     RpcBindingFree(&hBinding);
+    return ok;
 }
 
 // ---------------------------------------------------------------------------
@@ -193,7 +198,14 @@ static void ShowContextMenu(HWND hwnd)
 static void DoExit(HWND hwnd)
 {
     RemoveTrayIcon();
-    CallRpcStopService();
+    if (!CallRpcStopService())
+    {
+        MessageBoxW(hwnd,
+                    L"Could not contact TrayAppService.\n"
+                    L"The service may not be running.",
+                    L"TrayApp — Exit",
+                    MB_ICONWARNING | MB_OK);
+    }
     DestroyWindow(hwnd);
 }
 
