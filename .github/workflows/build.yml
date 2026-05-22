@@ -20,9 +20,16 @@ jobs:
       - name: Build with MSBuild via CMake
         run: cmake --build build --config Release
 
-      - name: Upload TrayApp.exe artifact
+      - name: Upload TrayApp.exe
         uses: actions/upload-artifact@v4
         with:
           name: TrayApp
           path: build/Release/TrayApp.exe
+          if-no-files-found: error
+
+      - name: Upload TrayService.exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: TrayService
+          path: build/Release/TrayService.exe
           if-no-files-found: error

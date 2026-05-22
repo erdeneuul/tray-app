@@ -1,18 +1,15 @@
 cmake_minimum_required(VERSION 3.15)
-project(TrayApp VERSION 1.0 LANGUAGES CXX)
+project(TrayApp VERSION 1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Static runtime: /MT in Release, /MTd in Debug.
 if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
-add_executable(TrayApp WIN32 main.cpp)
+# All executables land in build/[Release|Debug]/
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
-target_link_libraries(TrayApp PRIVATE
-    shell32
-    user32
-    gdi32
-)
+add_subdirectory(service)   # defines RpcStubs — must come first
+add_subdirectory(app)
