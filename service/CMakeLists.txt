@@ -50,4 +50,5 @@ target_link_libraries(TrayService PRIVATE
     wtsapi32
     userenv
     advapi32
+    winhttp
 )
