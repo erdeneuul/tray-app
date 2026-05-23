@@ -1,0 +1,30 @@
+[
+    uuid(3E9F2A7C-4D1B-4E8A-B5C3-0F7D1A6E4B2C),
+    version(1.0)
+]
+interface ITrayAppService
+{
+    typedef struct tagLICENSE_INFO {
+        long      is_licensed;
+        wchar_t   expiry_date[64];
+        long      error_code;
+        wchar_t   error_message[256];
+    } LICENSE_INFO;
+
+    void StopService([in] handle_t hBinding);
+
+    long LoginUser([in] handle_t hBinding,
+                   [in, string] wchar_t* email,
+                   [in, string] wchar_t* password);
+
+    long LogoutUser([in] handle_t hBinding);
+
+    long GetCurrentUser([in]  handle_t  hBinding,
+                        [out, string] wchar_t** email);
+
+    long GetLicenseInfo([in]  handle_t     hBinding,
+                        [out] LICENSE_INFO* info);
+
+    long ActivateProduct([in] handle_t hBinding,
+                         [in, string] wchar_t* activationCode);
+}
